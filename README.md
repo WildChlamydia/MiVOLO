@@ -1,6 +1,6 @@
-<div align="left">
+<div align="center">
 <p>
-   <a align="left" target="_blank">
+   <a align="center" target="_blank">
    <img width="500" src="./images/MiVOLO.jpg"></a>
 </p>
 <br>
