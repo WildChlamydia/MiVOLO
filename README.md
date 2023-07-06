@@ -1,7 +1,7 @@
 <div align="center">
 <p>
    <a align="center" target="_blank">
-   <img width="500" src="./images/MiVOLO.jpg"></a>
+   <img width="900" src="./images/MiVOLO.jpg"></a>
 </p>
 <br>
 </div>
