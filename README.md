@@ -259,7 +259,7 @@ Please, see [here](./license)
 
 ## Citing
 
-If you use our models, code or dataset, we kindly request you to cite the following paper and give our repository a :star:
+If you use our models, code or dataset, we kindly request you to cite the following paper and give repository a :star:
 
 ```bibtex
 @misc{mivolonetwork,
