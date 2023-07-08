@@ -250,7 +250,7 @@ python3 eval_pretrained.py \
   --device "cuda:0"
 ````
 
-Supported datasets:
+Supported dataset names: "utk", "imdb", "lagenda", "fairface", "adience".
 
 ## License
 
