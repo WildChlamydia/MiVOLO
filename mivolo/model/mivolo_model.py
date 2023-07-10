@@ -6,7 +6,7 @@ Modifications and additions for mivolo by / Copyright 2023, Irina Tolstykh, Maxi
 
 import torch
 import torch.nn as nn
-from mivolo.modeling.cross_bottleneck_attn import CrossBottleneckAttn
+from mivolo.model.cross_bottleneck_attn import CrossBottleneckAttn
 from timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from timm.layers import trunc_normal_
 from timm.models._builder import build_model_with_cfg

@@ -8,7 +8,7 @@ import seaborn as sns
 import torch
 from eval_tools import Metrics, time_sync, write_results
 from mivolo.data.dataset import build as build_data
-from mivolo.modeling.mi_volo import MiVOLO
+from mivolo.model.mi_volo import MiVOLO
 from timm.utils import setup_default_logging
 
 _logger = logging.getLogger("inference")

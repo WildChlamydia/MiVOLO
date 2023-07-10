@@ -1,8 +1,8 @@
 from typing import Optional, Tuple
 
 import numpy as np
-from mivolo.modeling.mi_volo import MiVOLO
-from mivolo.modeling.yolo_detector import Detector, PersonAndFaceResult
+from mivolo.model.mi_volo import MiVOLO
+from mivolo.model.yolo_detector import Detector, PersonAndFaceResult
 
 
 class Predictor:

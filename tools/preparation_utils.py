@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 from mivolo.data.data_reader import PictureInfo
 from mivolo.data.misc import assign_faces, box_iou
-from mivolo.modeling.yolo_detector import PersonAndFaceResult
+from mivolo.model.yolo_detector import PersonAndFaceResult
 
 
 def save_annotations(images: List[PictureInfo], images_dir: str, out_file: str):

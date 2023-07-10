@@ -1,7 +1,7 @@
 from typing import Tuple
 
 import torch
-from mivolo.modeling.mi_volo import MiVOLO
+from mivolo.model.mi_volo import MiVOLO
 
 from .age_gender_dataset import AgeGenderDataset
 from .age_gender_loader import create_loader
