@@ -153,9 +153,6 @@ class PatchEmbed(nn.Module):
                 hidden_dim, embed_dim, kernel_size=patch_size // stem_stride, stride=patch_size // stem_stride
             )
 
-        if not self.with_persons_model:
-            self.proj_output_size = get_output_size((img_size, img_size), self.proj)
-
         self.patch_dim = img_size // patch_size
         self.num_patches = self.patch_dim**2
 
