@@ -13,11 +13,11 @@
 [//]: # (TODO:)
 [//]: [![PWC]()]()
 
-> [**MiVOLO: Multi-input Transformer for Age and Gender Estimation**]([http://arxiv.org/](https://arxiv.org/abs/2307.04616)),
+> [**MiVOLO: Multi-input Transformer for Age and Gender Estimation**](https://arxiv.org/abs/2307.04616),
 > Maksim Kuprashevich, Irina Tolstykh,
 > *2023 &#40;[]&#40;&#41;&#41;*
 
-[[`Paper`](http://arxiv.org/](https://arxiv.org/abs/2307.04616)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)] 
+[[`Paper`](https://arxiv.org/abs/2307.04616)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)] 
 
 
 ## MiVOLO pretrained models
