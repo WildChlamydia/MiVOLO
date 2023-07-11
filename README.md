@@ -262,12 +262,10 @@ Please, see [here](./license)
 If you use our models, code or dataset, we kindly request you to cite the following paper and give repository a :star:
 
 ```bibtex
-@misc{mivolonetwork,
-  title={MiVOLO: Multi-input Transformer for Age and Gender Estimation},
-  author={Maksim Kuprashevich and Irina Tolstykh},
-  year={2023},
-  eprint={0000.00000},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV}
+@misc{2307.04616,
+Author = {Maksim Kuprashevich and Irina Tolstykh},
+Title = {MiVOLO: Multi-input Transformer for Age and Gender Estimation},
+Year = {2023},
+Eprint = {arXiv:2307.04616},
 }
 ```
