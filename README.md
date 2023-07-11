@@ -263,9 +263,9 @@ If you use our models, code or dataset, we kindly request you to cite the follow
 
 ```bibtex
 @misc{2307.04616,
-Author = {Maksim Kuprashevich and Irina Tolstykh},
-Title = {MiVOLO: Multi-input Transformer for Age and Gender Estimation},
-Year = {2023},
-Eprint = {arXiv:2307.04616},
+   Author = {Maksim Kuprashevich and Irina Tolstykh},
+   Title = {MiVOLO: Multi-input Transformer for Age and Gender Estimation},
+   Year = {2023},
+   Eprint = {arXiv:2307.04616},
 }
 ```
