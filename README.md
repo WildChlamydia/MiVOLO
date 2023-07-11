@@ -82,9 +82,9 @@ Gender & Age recognition performance.
     <td>mivolo_d1</td>
     <td align="left">face_body, age, gender</td>
     <td align="left">Lagenda</td>
-    <td align="left">3.99</td>
-    <td align="left">71.27</td>
-    <td align="left">97.36</td>
+    <td align="left">3.99 [face+body]</td>
+    <td align="left">71.27 [face+body]</td>
+    <td align="left">97.36 [face+body]</td>
     <td><a href="https://huggingface.co/spaces/iitolstykh/demo">demo</a></td>
   </tr>
 <tr>
