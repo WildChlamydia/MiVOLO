@@ -24,7 +24,7 @@ setup(
     project_urls={"Datasets": "https://wildchlamydia.github.io/lagenda/"},
     author="Layer Team, SberDevices",
     author_email="mvkuprashevich@gmail.com, irinakr4snova@gmail.com",
-    packages=find_packages(include=["mivolo", "mivolo.modeling", "mivolo.data", "mivolo.data.dataset"]),  # required
+    packages=find_packages(include=["mivolo", "mivolo.model", "mivolo.data", "mivolo.data.dataset"]),  # required
     include_package_data=True,
     install_requires=REQUIREMENTS,
     classifiers=[
