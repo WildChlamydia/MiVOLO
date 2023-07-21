@@ -20,7 +20,7 @@ setup(
     description="Layer MiVOLO for SOTA age and gender recognition",
     long_description=README,
     long_description_content_type="text/markdown",
-    url='https://github.com/WildChlamydia/MiVOLO',
+    url="https://github.com/WildChlamydia/MiVOLO",
     project_urls={"Datasets": "https://wildchlamydia.github.io/lagenda/"},
     author="Layer Team, SberDevices",
     author_email="mvkuprashevich@gmail.com, irinakr4snova@gmail.com",

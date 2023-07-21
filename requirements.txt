@@ -1,3 +1,4 @@
 huggingface_hub
 ultralytics
 timm==0.8.13.dev0
+yt_dlp

@@ -1,3 +1,4 @@
+import copy
 import math
 import os
 from copy import deepcopy
@@ -6,7 +7,7 @@ from typing import Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 import torch
-from mivolo.data.misc import assign_faces, box_iou, cropout_black_parts
+from mivolo.data.misc import aggregate_votes_winsorized, assign_faces, box_iou, cropout_black_parts
 from ultralytics.yolo.engine.results import Results
 from ultralytics.yolo.utils.plotting import Annotator, colors
 
@@ -134,7 +135,6 @@ class PersonAndFaceResult:
         # initially no faces and persons are associated to each other
         self.face_to_person_map: Dict[int, Optional[int]] = {ind: None for ind in self.get_bboxes_inds("face")}
         self.unassigned_persons_inds: List[int] = self.get_bboxes_inds("person")
-
         n_objects = len(self.yolo_results.boxes)
         self.ages: List[Optional[float]] = [None for _ in range(n_objects)]
         self.genders: List[Optional[str]] = [None for _ in range(n_objects)]
@@ -177,6 +177,7 @@ class PersonAndFaceResult:
         ages=True,
         genders=True,
         gender_probs=False,
+        tracked_objects: Optional[Dict] = None,
     ):
         """
         Plots the detection results on an input RGB image. Accepts a numpy array (cv2) or a PIL Image.
@@ -216,14 +217,15 @@ class PersonAndFaceResult:
         )
         pred_boxes, show_boxes = self.yolo_results.boxes, boxes
         pred_probs, show_probs = self.yolo_results.probs, probs
+        if tracked_objects is not None:
+            self._set_tracked_age_gender(tracked_objects)
 
         if pred_boxes and show_boxes:
             for bb_ind, (d, age, gender, gender_score) in enumerate(
                 zip(pred_boxes, self.ages, self.genders, self.gender_scores)
             ):
-
-                c, conf, id = int(d.cls), float(d.conf) if conf else None, None if d.id is None else int(d.id.item())
-                name = ("" if id is None else f"id:{id} ") + names[c]
+                c, conf, guid = int(d.cls), float(d.conf) if conf else None, None if d.id is None else int(d.id.item())
+                name = ("" if guid is None else f"id:{guid} ") + names[c]
                 label = (f"{name} {conf:.2f}" if conf else name) if labels else None
                 if ages and age is not None:
                     label += f" {age:.1f}"
@@ -239,8 +241,46 @@ class PersonAndFaceResult:
 
         return annotator.result()
 
-    def get_bbox_by_ind(self, ind: int) -> torch.tensor:
-        return self.yolo_results.boxes[ind].xyxy.squeeze().type(torch.int32)
+    def _set_tracked_age_gender(self, tracked_objects):
+        self._update_tracking_results(tracked_objects)
+        for face_ind, person_ind in self.face_to_person_map.items():
+            fguid, pguid = -1, -1
+            if person_ind is not None:
+                fid = self.yolo_results.boxes[face_ind].id
+                fguid = fid.item() if fid is not None else -1
+                pid = self.yolo_results.boxes[person_ind].id
+                pguid = pid.item() if pid is not None else -1
+            else:
+                pid = self.yolo_results.boxes[face_ind].id
+                fguid = pid.item() if pid is not None else -1
+                pguid = -1
+            if fguid == -1 and pguid == -1:
+                # YOLO might not assign ids for some objects in some cases:
+                # https://github.com/ultralytics/ultralytics/issues/3830
+                continue
+            age, gender = self._gather_tracking_result(tracked_objects, fguid, pguid)
+            self.set_age(face_ind, age)
+            self.set_gender(face_ind, gender, 1.0)
+            if pguid != -1:
+                self.set_gender(person_ind, gender, 1.0)
+                self.set_age(person_ind, age)
+        for person_ind in self.unassigned_persons_inds:
+            pid = self.yolo_results.boxes[person_ind].id
+            pguid = pid.item() if pid is not None else -1
+            if pguid == -1:
+                continue
+            age, gender = self._gather_tracking_result(tracked_objects, -1, pguid)
+            self.set_gender(person_ind, gender, 1.0)
+            self.set_age(person_ind, age)
+
+    def get_bbox_by_ind(self, ind: int, im_h: int = None, im_w: int = None) -> torch.tensor:
+        bb = self.yolo_results.boxes[ind].xyxy.squeeze().type(torch.int32)
+        if im_h is not None and im_w is not None:
+            bb[0] = torch.clamp(bb[0], min=0, max=im_w - 1)
+            bb[1] = torch.clamp(bb[1], min=0, max=im_h - 1)
+            bb[2] = torch.clamp(bb[2], min=0, max=im_w - 1)
+            bb[3] = torch.clamp(bb[3], min=0, max=im_h - 1)
+        return bb
 
     def set_age(self, ind: Optional[int], age: float):
         if ind is not None:
@@ -250,6 +290,79 @@ class PersonAndFaceResult:
         if ind is not None:
             self.genders[ind] = gender
             self.gender_scores[ind] = gender_score
+
+    def _update_tracking_results(self, tracked_objects: Dict[int, List[Tuple[float, str]]]) -> Dict[int, List]:
+        tracked_objects = copy.deepcopy(tracked_objects) if tracked_objects is not None else {}
+        # add results to tracking
+        if tracked_objects is not None:
+            tr_pers, tr_faces = self.get_results_for_tracking()
+            # update tracked_faces and tracked_persons
+            for guid in tr_pers:
+                if guid not in tracked_objects:
+                    tracked_objects[guid] = []
+                tracked_objects[guid].append(tr_pers[guid])
+            for guid in tr_faces:
+                if guid not in tracked_objects:
+                    tracked_objects[guid] = []
+                tracked_objects[guid].append(tr_faces[guid])
+
+        return tracked_objects
+
+    def _gather_tracking_result(
+        self,
+        tracked_objects: Dict[int, List[Tuple[float, str]]],
+        fguid: int = -1,
+        pguid: int = -1,
+    ) -> Tuple[Optional[float], Optional[str]]:
+        assert fguid != -1 or pguid != -1
+
+        face_ages = [res[0] for res in tracked_objects[fguid]] if fguid in tracked_objects else []
+        face_genders = [res[1] for res in tracked_objects[fguid]] if fguid in tracked_objects else []
+        person_ages = [res[0] for res in tracked_objects[pguid]] if pguid in tracked_objects else []
+        person_genders = [res[1] for res in tracked_objects[pguid]] if pguid in tracked_objects else []
+
+        face_age = None
+        person_age = None
+
+        # You can play here with different aggregation strategies
+        # Face ages - predictions based on face or face + person, depends on history of object
+        # Person ages - predictions based on person or face + person, depends on history of object
+        if face_ages:
+            face_age = np.mean(face_ages)
+        if person_ages:
+            person_age = np.mean(person_ages)
+
+        minimum_sample_size = 10
+        if len(person_ages + face_ages) >= minimum_sample_size:
+            age = aggregate_votes_winsorized(person_ages + face_ages)
+        else:
+            face_age = face_age if face_age is not None else person_age
+            person_age = person_age if person_age is not None else face_age
+            age = (face_age + person_age) / 2.0
+
+        genders = face_genders + person_genders
+        assert len(genders) > 0
+        # take mode of genders
+        gender = max(set(genders), key=genders.count)
+
+        return (age, gender)
+
+    def get_results_for_tracking(self) -> Tuple[Dict[int, Tuple[float, str]], Dict[int, Tuple[float, str]]]:
+        persons = {}
+        faces = {}
+        names = self.yolo_results.names
+        pred_boxes = self.yolo_results.boxes
+        for _, (d, age, gender, _) in enumerate(zip(pred_boxes, self.ages, self.genders, self.gender_scores)):
+            if d.id is None:
+                continue
+            c, _, guid = int(d.cls), float(d.conf), int(d.id.item())
+            name = names[c]
+            if name == "person":
+                persons[guid] = (age, gender)
+            elif name == "face":
+                faces[guid] = (age, gender)
+
+        return persons, faces
 
     def associate_faces_with_persons(self):
         face_bboxes_inds: List[int] = self.get_bboxes_inds("face")
@@ -268,9 +381,6 @@ class PersonAndFaceResult:
 
         self.unassigned_persons_inds = [person_bboxes_inds[person_ind] for person_ind in unassigned_persons_inds]
 
-        # print(f"face_to_person_map: {self.face_to_person_map}")
-        # print(f"unassigned_persons_inds: {self.unassigned_persons_inds}")
-
     def crop_object(
         self, full_image: np.ndarray, ind: int, cut_other_classes: Optional[List[str]] = None
     ) -> Optional[np.ndarray]:
@@ -280,7 +390,7 @@ class PersonAndFaceResult:
         CROP_ROUND_RATE = 0.3
         MIN_PERSON_SIZE = 50
 
-        obj_bbox = self.get_bbox_by_ind(ind)
+        obj_bbox = self.get_bbox_by_ind(ind, *full_image.shape[:2])
         x1, y1, x2, y2 = obj_bbox
         cur_cat = self.yolo_results.names[int(self.yolo_results.boxes[ind].cls)]
         # get crop of face or person
@@ -295,7 +405,7 @@ class PersonAndFaceResult:
 
         # calc iou between obj_bbox and other bboxes
         other_bboxes: List[torch.tensor] = [
-            self.get_bbox_by_ind(other_ind) for other_ind in range(len(self.yolo_results.boxes))
+            self.get_bbox_by_ind(other_ind, *full_image.shape[:2]) for other_ind in range(len(self.yolo_results.boxes))
         ]
 
         iou_matrix = box_iou(torch.stack([obj_bbox]), torch.stack(other_bboxes)).cpu().numpy()[0]

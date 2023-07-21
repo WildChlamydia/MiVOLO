@@ -16,7 +16,7 @@
 > Maksim Kuprashevich, Irina Tolstykh,
 > *2023 [arXiv 2307.04616](https://arxiv.org/abs/2307.04616)*
 
-[[`Paper`](https://arxiv.org/abs/2307.04616)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)] 
+[[`Paper`](https://arxiv.org/abs/2307.04616)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)]
 
 
 ## MiVOLO pretrained models

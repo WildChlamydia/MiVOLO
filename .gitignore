@@ -1,0 +1,3 @@
+output/
+.mypy_cache/
+.vscode/
