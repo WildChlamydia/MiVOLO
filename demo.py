@@ -73,6 +73,7 @@ def main():
     predictor = Predictor(args, verbose=True)
 
     input_type = get_input_type(args.input)
+
     if input_type == InputType.Video or input_type == InputType.VideoStream:
         if not args.draw:
             raise ValueError("Video processing is only supported with --draw flag. No other way to visualize results.")
@@ -87,9 +88,12 @@ def main():
             outfilename = os.path.join(args.output, f"out_{bname}.avi")
             res, fps = get_local_video_info(args.input)
 
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        out = cv2.VideoWriter(outfilename, fourcc, fps, res)
-        for frame in predictor.recognize_video(args.input):
+        if args.draw:
+            fourcc = cv2.VideoWriter_fourcc(*"XVID")
+            out = cv2.VideoWriter(outfilename, fourcc, fps, res)
+            _logger.info(f"Saving result to {outfilename}..")
+
+        for (detected_objects_history, frame) in predictor.recognize_video(args.input):
             if args.draw:
                 out.write(frame)
 

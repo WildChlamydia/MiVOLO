@@ -1,11 +1,12 @@
 from collections import defaultdict
-from typing import Dict, Generator, Optional, Tuple
+from typing import Dict, Generator, List, Optional, Tuple
 
 import cv2
 import numpy as np
 import tqdm
 from mivolo.model.mi_volo import MiVOLO
-from mivolo.model.yolo_detector import Detector, PersonAndFaceResult
+from mivolo.model.yolo_detector import Detector
+from mivolo.structures import AGE_GENDER_TYPE, PersonAndFaceResult
 
 
 class Predictor:
@@ -37,8 +38,9 @@ class Predictor:
         if not video_capture.isOpened():
             raise ValueError(f"Failed to open video source {source}")
 
+        detected_objects_history: Dict[int, List[AGE_GENDER_TYPE]] = defaultdict(list)
+
         total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-        detected_objects_history: Dict = defaultdict(list)
         for _ in tqdm.tqdm(range(total_frames)):
             ret, frame = video_capture.read()
             if not ret:
@@ -46,15 +48,18 @@ class Predictor:
 
             detected_objects: PersonAndFaceResult = self.detector.track(frame)
             self.age_gender_model.predict(frame, detected_objects)
-            tr_persons, tr_faces = detected_objects.get_results_for_tracking()
+
+            current_frame_objs = detected_objects.get_results_for_tracking()
+            cur_persons: Dict[int, AGE_GENDER_TYPE] = current_frame_objs[0]
+            cur_faces: Dict[int, AGE_GENDER_TYPE] = current_frame_objs[1]
 
             # add tr_persons and tr_faces to history
-            for guid, data in tr_persons.items():
+            for guid, data in cur_persons.items():
                 detected_objects_history[guid].append(data)
-            for guid, data in tr_faces.items():
+            for guid, data in cur_faces.items():
                 detected_objects_history[guid].append(data)
 
-            frame = detected_objects.plot(
-                tracked_objects=detected_objects_history,
-            )
-            yield frame
+            detected_objects.set_tracked_age_gender(detected_objects_history)
+            if self.draw:
+                frame = detected_objects.plot()
+            yield detected_objects_history, frame

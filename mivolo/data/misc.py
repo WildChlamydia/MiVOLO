@@ -17,14 +17,9 @@ MIN_PERSON_CROP_NONZERO = 0.5
 def aggregate_votes_winsorized(ages, max_age_dist=6):
     # Replace any annotation that is more than a max_age_dist away from the median
     # with the median + max_age_dist if higher or max_age_dist - max_age_dist if below
-    ages = sorted(ages)
-    if len(ages) % 2 == 1:
-        median = ages[int(len(ages) / 2)]
-    else:
-        median = (ages[int(len(ages) / 2)] + ages[int(len(ages) / 2 - 1)]) / 2
-    ages = [median + max_age_dist if a > median + max_age_dist else a for a in ages]
-    ages = [median - max_age_dist if a < median - max_age_dist else a for a in ages]
-    return sum(ages) / len(ages)
+    median = np.median(ages)
+    ages = np.clip(ages, median - max_age_dist, median + max_age_dist)
+    return np.mean(ages)
 
 
 def cropout_black_parts(img, tol=0.3):

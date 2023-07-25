@@ -71,6 +71,8 @@ Testing notebook.ipynb
 /*.tar.*
 *.jpg
 *.png
+*.avi
+*.mp4
 
 .mypy_cache/
 .vscode/

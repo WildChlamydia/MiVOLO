@@ -71,20 +71,20 @@ def get_input_type(input_path: str) -> InputType:
         print("Input is a folder, only images will be processed")
         return InputType.Image
     elif os.path.isfile(input_path):
-        if input_path.endswith(tuple(VIDEO_EXT)):
+        if input_path.endswith(VIDEO_EXT):
             return InputType.Video
-        if input_path.endswith(".jpg") or input_path.endswith(".png"):
+        if input_path.endswith(IMAGES_EXT):
             return InputType.Image
         else:
             raise ValueError(
-                f"Unknown or unsupported input type {input_path}, \
+                f"Unknown or unsupported input file format {input_path}, \
                              supported video formats: {VIDEO_EXT}, \
                              supported image formats: {IMAGES_EXT}"
             )
-    elif input_path.startswith("http") and not input_path.endswith(tuple(IMAGES_EXT)):
+    elif input_path.startswith("http") and not input_path.endswith(IMAGES_EXT):
         return InputType.VideoStream
     else:
-        raise ValueError(f"Unknown input type {input_path}")
+        raise ValueError(f"Unknown input {input_path}")
 
 
 def read_csv_annotation_file(annotation_file: str, images_dir: str, ignore_without_gt=False):

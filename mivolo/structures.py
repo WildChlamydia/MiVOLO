@@ -1,4 +1,3 @@
-import copy
 import math
 import os
 from copy import deepcopy
@@ -13,6 +12,8 @@ from ultralytics.yolo.utils.plotting import Annotator, colors
 
 # because of ultralytics bug it is important to unset CUBLAS_WORKSPACE_CONFIG after the module importing
 os.unsetenv("CUBLAS_WORKSPACE_CONFIG")
+
+AGE_GENDER_TYPE = Tuple[float, str]
 
 
 class PersonAndFaceCrops:
@@ -177,7 +178,6 @@ class PersonAndFaceResult:
         ages=True,
         genders=True,
         gender_probs=False,
-        tracked_objects: Optional[Dict] = None,
     ):
         """
         Plots the detection results on an input RGB image. Accepts a numpy array (cv2) or a PIL Image.
@@ -191,6 +191,9 @@ class PersonAndFaceResult:
             labels (bool): Whether to plot the label of bounding boxes.
             boxes (bool): Whether to plot the bounding boxes.
             probs (bool): Whether to plot classification probability
+            ages (bool): Whether to plot the age of bounding boxes.
+            genders (bool): Whether to plot the genders of bounding boxes.
+            gender_probs (bool): Whether to plot gender classification probability
         Returns:
             (numpy.ndarray): A numpy array of the annotated image.
         """
@@ -217,8 +220,6 @@ class PersonAndFaceResult:
         )
         pred_boxes, show_boxes = self.yolo_results.boxes, boxes
         pred_probs, show_probs = self.yolo_results.probs, probs
-        if tracked_objects is not None:
-            self._set_tracked_age_gender(tracked_objects)
 
         if pred_boxes and show_boxes:
             for bb_ind, (d, age, gender, gender_score) in enumerate(
@@ -241,19 +242,17 @@ class PersonAndFaceResult:
 
         return annotator.result()
 
-    def _set_tracked_age_gender(self, tracked_objects):
-        self._update_tracking_results(tracked_objects)
+    def set_tracked_age_gender(self, tracked_objects: Dict[int, List[AGE_GENDER_TYPE]]):
+        """
+        Update age and gender for objects based on history from tracked_objects.
+        Args:
+            tracked_objects (dict[int, list[AGE_GENDER_TYPE]]): info about tracked objects by guid
+        """
+
         for face_ind, person_ind in self.face_to_person_map.items():
-            fguid, pguid = -1, -1
-            if person_ind is not None:
-                fid = self.yolo_results.boxes[face_ind].id
-                fguid = fid.item() if fid is not None else -1
-                pid = self.yolo_results.boxes[person_ind].id
-                pguid = pid.item() if pid is not None else -1
-            else:
-                pid = self.yolo_results.boxes[face_ind].id
-                fguid = pid.item() if pid is not None else -1
-                pguid = -1
+            pguid = self._get_id_by_ind(person_ind)
+            fguid = self._get_id_by_ind(face_ind)
+
             if fguid == -1 and pguid == -1:
                 # YOLO might not assign ids for some objects in some cases:
                 # https://github.com/ultralytics/ultralytics/issues/3830
@@ -264,14 +263,22 @@ class PersonAndFaceResult:
             if pguid != -1:
                 self.set_gender(person_ind, gender, 1.0)
                 self.set_age(person_ind, age)
+
         for person_ind in self.unassigned_persons_inds:
-            pid = self.yolo_results.boxes[person_ind].id
-            pguid = pid.item() if pid is not None else -1
-            if pguid == -1:
+            pid = self._get_id_by_ind(person_ind)
+            if pid == -1:
                 continue
-            age, gender = self._gather_tracking_result(tracked_objects, -1, pguid)
+            age, gender = self._gather_tracking_result(tracked_objects, -1, pid)
             self.set_gender(person_ind, gender, 1.0)
             self.set_age(person_ind, age)
+
+    def _get_id_by_ind(self, ind: Optional[int] = None) -> int:
+        if ind is None:
+            return -1
+        obj_id = self.yolo_results.boxes[ind].id
+        if obj_id is None:
+            return -1
+        return obj_id.item()
 
     def get_bbox_by_ind(self, ind: int, im_h: int = None, im_w: int = None) -> torch.tensor:
         bb = self.yolo_results.boxes[ind].xyxy.squeeze().type(torch.int32)
@@ -291,53 +298,34 @@ class PersonAndFaceResult:
             self.genders[ind] = gender
             self.gender_scores[ind] = gender_score
 
-    def _update_tracking_results(self, tracked_objects: Dict[int, List[Tuple[float, str]]]) -> Dict[int, List]:
-        tracked_objects = copy.deepcopy(tracked_objects) if tracked_objects is not None else {}
-        # add results to tracking
-        if tracked_objects is not None:
-            tr_pers, tr_faces = self.get_results_for_tracking()
-            # update tracked_faces and tracked_persons
-            for guid in tr_pers:
-                if guid not in tracked_objects:
-                    tracked_objects[guid] = []
-                tracked_objects[guid].append(tr_pers[guid])
-            for guid in tr_faces:
-                if guid not in tracked_objects:
-                    tracked_objects[guid] = []
-                tracked_objects[guid].append(tr_faces[guid])
-
-        return tracked_objects
-
+    @staticmethod
     def _gather_tracking_result(
-        self,
-        tracked_objects: Dict[int, List[Tuple[float, str]]],
+        tracked_objects: Dict[int, List[AGE_GENDER_TYPE]],
         fguid: int = -1,
         pguid: int = -1,
-    ) -> Tuple[Optional[float], Optional[str]]:
-        assert fguid != -1 or pguid != -1
+        minimum_sample_size: int = 10,
+    ) -> AGE_GENDER_TYPE:
+
+        assert fguid != -1 or pguid != -1, "Incorrect tracking behaviour"
 
         face_ages = [res[0] for res in tracked_objects[fguid]] if fguid in tracked_objects else []
         face_genders = [res[1] for res in tracked_objects[fguid]] if fguid in tracked_objects else []
         person_ages = [res[0] for res in tracked_objects[pguid]] if pguid in tracked_objects else []
         person_genders = [res[1] for res in tracked_objects[pguid]] if pguid in tracked_objects else []
 
-        face_age = None
-        person_age = None
-
         # You can play here with different aggregation strategies
         # Face ages - predictions based on face or face + person, depends on history of object
         # Person ages - predictions based on person or face + person, depends on history of object
-        if face_ages:
-            face_age = np.mean(face_ages)
-        if person_ages:
-            person_age = np.mean(person_ages)
 
-        minimum_sample_size = 10
         if len(person_ages + face_ages) >= minimum_sample_size:
             age = aggregate_votes_winsorized(person_ages + face_ages)
         else:
-            face_age = face_age if face_age is not None else person_age
-            person_age = person_age if person_age is not None else face_age
+            face_age = np.mean(face_ages) if face_ages else None
+            person_age = np.mean(person_ages) if person_ages else None
+            if face_age is None:
+                face_age = person_age
+            if person_age is None:
+                person_age = face_age
             age = (face_age + person_age) / 2.0
 
         genders = face_genders + person_genders
@@ -345,18 +333,22 @@ class PersonAndFaceResult:
         # take mode of genders
         gender = max(set(genders), key=genders.count)
 
-        return (age, gender)
+        return age, gender
 
-    def get_results_for_tracking(self) -> Tuple[Dict[int, Tuple[float, str]], Dict[int, Tuple[float, str]]]:
-        persons = {}
-        faces = {}
+    def get_results_for_tracking(self) -> Tuple[Dict[int, AGE_GENDER_TYPE], Dict[int, AGE_GENDER_TYPE]]:
+        """
+        Get objects from current frame
+        """
+        persons: Dict[int, AGE_GENDER_TYPE] = {}
+        faces: Dict[int, AGE_GENDER_TYPE] = {}
+
         names = self.yolo_results.names
         pred_boxes = self.yolo_results.boxes
-        for _, (d, age, gender, _) in enumerate(zip(pred_boxes, self.ages, self.genders, self.gender_scores)):
-            if d.id is None:
+        for _, (det, age, gender, _) in enumerate(zip(pred_boxes, self.ages, self.genders, self.gender_scores)):
+            if det.id is None:
                 continue
-            c, _, guid = int(d.cls), float(d.conf), int(d.id.item())
-            name = names[c]
+            cat_id, _, guid = int(det.cls), float(det.conf), int(det.id.item())
+            name = names[cat_id]
             if name == "person":
                 persons[guid] = (age, gender)
             elif name == "face":
