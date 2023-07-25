@@ -14,6 +14,14 @@ CROP_ROUND_RATE = 0.1
 MIN_PERSON_CROP_NONZERO = 0.5
 
 
+def aggregate_votes_winsorized(ages, max_age_dist=6):
+    # Replace any annotation that is more than a max_age_dist away from the median
+    # with the median + max_age_dist if higher or max_age_dist - max_age_dist if below
+    median = np.median(ages)
+    ages = np.clip(ages, median - max_age_dist, median + max_age_dist)
+    return np.mean(ages)
+
+
 def cropout_black_parts(img, tol=0.3):
     # Create a binary mask of zero pixels
     zero_pixels_mask = np.all(img == 0, axis=2)

@@ -16,7 +16,7 @@
 > Maksim Kuprashevich, Irina Tolstykh,
 > *2023 [arXiv 2307.04616](https://arxiv.org/abs/2307.04616)*
 
-[[`Paper`](https://arxiv.org/abs/2307.04616)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)] 
+[[`Paper`](https://arxiv.org/abs/2307.04616)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)]
 
 
 ## MiVOLO pretrained models
@@ -225,8 +225,20 @@ python3 demo.py \
 --device "cuda:0" \
 --with-persons \
 --draw
-
 ```
+
+To run demo for a youtube video:
+```bash
+python3 demo.py \
+--input "https://www.youtube.com/shorts/pVh32k0hGEI" \
+--output "output" \
+--detector-weights "models/yolov8x_person_face.pt" \
+--checkpoint "models/mivolo_imbd.pth.tar" \
+--device "cuda:0" \
+--draw \
+--with-persons
+```
+
 
 ## Validation
 
