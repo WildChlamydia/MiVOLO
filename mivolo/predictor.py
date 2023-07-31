@@ -55,9 +55,12 @@ class Predictor:
 
             # add tr_persons and tr_faces to history
             for guid, data in cur_persons.items():
-                detected_objects_history[guid].append(data)
+                # not useful for tracking :)
+                if None not in data: 
+                    detected_objects_history[guid].append(data)
             for guid, data in cur_faces.items():
-                detected_objects_history[guid].append(data)
+                if None not in data:
+                    detected_objects_history[guid].append(data)
 
             detected_objects.set_tracked_age_gender(detected_objects_history)
             if self.draw:

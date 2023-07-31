@@ -258,6 +258,8 @@ class PersonAndFaceResult:
                 # https://github.com/ultralytics/ultralytics/issues/3830
                 continue
             age, gender = self._gather_tracking_result(tracked_objects, fguid, pguid)
+            if age is None or gender is None:
+                continue
             self.set_age(face_ind, age)
             self.set_gender(face_ind, gender, 1.0)
             if pguid != -1:
@@ -269,6 +271,8 @@ class PersonAndFaceResult:
             if pid == -1:
                 continue
             age, gender = self._gather_tracking_result(tracked_objects, -1, pid)
+            if age is None or gender is None:
+                continue
             self.set_gender(person_ind, gender, 1.0)
             self.set_age(person_ind, age)
 
@@ -308,10 +312,13 @@ class PersonAndFaceResult:
 
         assert fguid != -1 or pguid != -1, "Incorrect tracking behaviour"
 
-        face_ages = [res[0] for res in tracked_objects[fguid]] if fguid in tracked_objects else []
-        face_genders = [res[1] for res in tracked_objects[fguid]] if fguid in tracked_objects else []
-        person_ages = [res[0] for res in tracked_objects[pguid]] if pguid in tracked_objects else []
-        person_genders = [res[1] for res in tracked_objects[pguid]] if pguid in tracked_objects else []
+        face_ages = [r[0] for r in tracked_objects[fguid] if r[0] is not None] if fguid in tracked_objects else []
+        face_genders = [r[1] for r in tracked_objects[fguid] if r[1] is not None] if fguid in tracked_objects else []
+        person_ages = [r[0] for r in tracked_objects[pguid] if r[0] is not None] if pguid in tracked_objects else []
+        person_genders = [r[1] for r in tracked_objects[pguid] if r[1] is not None] if pguid in tracked_objects else []
+
+        if not face_ages and not person_ages: # both empty
+            return None, None
 
         # You can play here with different aggregation strategies
         # Face ages - predictions based on face or face + person, depends on history of object
