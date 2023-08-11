@@ -268,7 +268,7 @@ Supported dataset names: "utk", "imdb", "lagenda", "fairface", "adience".
 As of now (11.08.2023), while ONNX export is technically feasible, it is not advisable due to the poor performance of the resulting model with batch processing. 
 TensorRT export is impossible due to its lack of support for col2im.
 
-If you remain absolutely committed to utilizing ONNX export, you can refer to these instructions: [ONNX Export Instructions](https://github.com/WildChlamydia/MiVOLO/issues/14#issuecomment-1675245889). 
+If you remain absolutely committed to utilizing ONNX export, you can refer to [these instructions](https://github.com/WildChlamydia/MiVOLO/issues/14#issuecomment-1675245889). 
 
 The most highly recommended export method at present **is using TorchScript**. You can achieve this with a single line of code:
 ```python
