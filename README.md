@@ -263,6 +263,19 @@ python3 eval_pretrained.py \
 
 Supported dataset names: "utk", "imdb", "lagenda", "fairface", "adience".
 
+## ONNX and TensorRT export
+
+As of now (11.08.2023), while ONNX export is technically feasible, it is not advisable due to the poor performance of the resulting model with batch processing. 
+TensorRT is impossible due to its lack of support for col2im.
+
+If you remain absolutely committed to utilizing ONNX export, you can refer to these instructions: [ONNX Export Instructions](https://github.com/WildChlamydia/MiVOLO/issues/14#issuecomment-1675245889). 
+
+The most highly recommended export method at present **is using TorchScript**. You can achieve this with a single line of code:
+```python
+torch.jit.trace(model)
+```
+This approach provides you with a model that maintains its original speed and only requires a single file for usage, eliminating the need for additional code.
+
 ## License
 
 Please, see [here](./license)
