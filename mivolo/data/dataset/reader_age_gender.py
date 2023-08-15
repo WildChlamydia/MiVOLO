@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 from mivolo.data.data_reader import AnnotType, PictureInfo, get_all_files, read_csv_annotation_file
-from mivolo.data.misc import IOU, class_letterbox, cropout_black_parts
+from mivolo.data.misc import IOU, class_letterbox
 from timm.data.readers.reader import Reader
 from tqdm import tqdm
 
@@ -461,10 +461,11 @@ def _cropout_asced_objs(
 
         crop[aobj_ymin:aobj_ymax, aobj_xmin:aobj_xmax] = crop_out_color
 
-    crop, cropped_ratio = cropout_black_parts(crop, crop_round_tol)
+    # calc useful non-black area
+    remain_ratio = np.count_nonzero(crop) / (crop.shape[0] * crop.shape[1])
     if (
         crop.shape[0] < min_person_size or crop.shape[1] < min_person_size
-    ) or cropped_ratio < min_person_aftercut_ratio:
+    ) or remain_ratio < min_person_aftercut_ratio:
         crop = None
         empty = True
 

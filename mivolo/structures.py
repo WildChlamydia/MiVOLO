@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 import torch
-from mivolo.data.misc import aggregate_votes_winsorized, assign_faces, box_iou, cropout_black_parts
+from mivolo.data.misc import aggregate_votes_winsorized, assign_faces, box_iou
 from ultralytics.yolo.engine.results import Results
 from ultralytics.yolo.utils.plotting import Annotator, colors
 
@@ -434,7 +434,7 @@ class PersonAndFaceResult:
 
             obj_image[o_y1:o_y2, o_x1:o_x2] = 0
 
-        obj_image, remain_ratio = cropout_black_parts(obj_image, CROP_ROUND_RATE)
+        remain_ratio = np.count_nonzero(obj_image) / (obj_image.shape[0] * obj_image.shape[1])
         if remain_ratio < MIN_PERSON_CROP_AFTERCUT_RATIO:
             return None
 
