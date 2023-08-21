@@ -56,7 +56,7 @@ class Predictor:
             # add tr_persons and tr_faces to history
             for guid, data in cur_persons.items():
                 # not useful for tracking :)
-                if None not in data: 
+                if None not in data:
                     detected_objects_history[guid].append(data)
             for guid, data in cur_faces.items():
                 if None not in data:

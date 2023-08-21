@@ -317,7 +317,7 @@ class PersonAndFaceResult:
         person_ages = [r[0] for r in tracked_objects[pguid] if r[0] is not None] if pguid in tracked_objects else []
         person_genders = [r[1] for r in tracked_objects[pguid] if r[1] is not None] if pguid in tracked_objects else []
 
-        if not face_ages and not person_ages: # both empty
+        if not face_ages and not person_ages:  # both empty
             return None, None
 
         # You can play here with different aggregation strategies
@@ -434,7 +434,7 @@ class PersonAndFaceResult:
 
             obj_image[o_y1:o_y2, o_x1:o_x2] = 0
 
-        remain_ratio = np.count_nonzero(obj_image) / (obj_image.shape[0] * obj_image.shape[1])
+        remain_ratio = np.count_nonzero(obj_image) / (obj_image.shape[0] * obj_image.shape[1] * obj_image.shape[2])
         if remain_ratio < MIN_PERSON_CROP_AFTERCUT_RATIO:
             return None
 

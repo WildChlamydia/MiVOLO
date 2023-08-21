@@ -462,10 +462,8 @@ def _cropout_asced_objs(
         crop[aobj_ymin:aobj_ymax, aobj_xmin:aobj_xmax] = crop_out_color
 
     # calc useful non-black area
-    remain_ratio = np.count_nonzero(crop) / (crop.shape[0] * crop.shape[1])
-    if (
-        crop.shape[0] < min_person_size or crop.shape[1] < min_person_size
-    ) or remain_ratio < min_person_aftercut_ratio:
+    remain_ratio = np.count_nonzero(crop) / (crop.shape[0] * crop.shape[1] * crop.shape[2])
+    if (crop.shape[0] < min_person_size or crop.shape[1] < min_person_size) or remain_ratio < min_person_aftercut_ratio:
         crop = None
         empty = True
 
