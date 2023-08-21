@@ -22,27 +22,6 @@ def aggregate_votes_winsorized(ages, max_age_dist=6):
     return np.mean(ages)
 
 
-def cropout_black_parts(img, tol=0.3):
-    # Create a binary mask of zero pixels
-    zero_pixels_mask = np.all(img == 0, axis=2)
-    # Calculate the threshold for zero pixels in rows and columns
-    threshold = img.shape[0] - img.shape[0] * tol
-    # Calculate row sums and column sums of zero pixels mask
-    row_sums = np.sum(zero_pixels_mask, axis=1)
-    col_sums = np.sum(zero_pixels_mask, axis=0)
-    # Find the first and last rows with zero pixel sums above the threshold
-    start_row = np.argmin(row_sums > threshold)
-    end_row = img.shape[0] - np.argmin(row_sums[::-1] > threshold)
-    # Find the first and last columns with zero pixel sums above the threshold
-    start_col = np.argmin(col_sums > threshold)
-    end_col = img.shape[1] - np.argmin(col_sums[::-1] > threshold)
-    # Crop the image
-    cropped_img = img[start_row:end_row, start_col:end_col, :]
-    area = cropped_img.shape[0] * cropped_img.shape[1]
-    area_orig = img.shape[0] * img.shape[1]
-    return cropped_img, area / area_orig
-
-
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
     return [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", string_.lower())]
