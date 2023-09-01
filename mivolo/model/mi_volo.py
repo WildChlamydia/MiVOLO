@@ -51,7 +51,10 @@ class Meta:
         if not self.with_persons_model and self.disable_faces:
             raise ValueError("You can not use disable-faces for faces-only model")
         if self.with_persons_model and self.disable_faces and not self.use_persons:
-            raise ValueError("You can not disable faces and persons together")
+            raise ValueError(
+                "You can not disable faces and persons together. "
+                "Set --with-persons if you want to run with --disable-faces"
+            )
 
         return self
 
@@ -144,10 +147,19 @@ class MiVOLO:
         return output
 
     def predict(self, image: np.ndarray, detected_bboxes: PersonAndFaceResult):
-        if detected_bboxes.n_objects == 0:
+        if (
+            (detected_bboxes.n_objects == 0)
+            or (not self.meta.use_persons and detected_bboxes.n_faces == 0)
+            or (self.meta.disable_faces and detected_bboxes.n_persons == 0)
+        ):
+            # nothing to process
             return
 
         faces_input, person_input, faces_inds, bodies_inds = self.prepare_crops(image, detected_bboxes)
+
+        if faces_input is None and person_input is None:
+            # nothing to process
+            return
 
         if self.meta.with_persons_model:
             model_input = torch.cat((faces_input, person_input), dim=1)

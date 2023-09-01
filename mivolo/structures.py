@@ -145,6 +145,14 @@ class PersonAndFaceResult:
     def n_objects(self) -> int:
         return len(self.yolo_results.boxes)
 
+    @property
+    def n_faces(self) -> int:
+        return len(self.get_bboxes_inds("face"))
+
+    @property
+    def n_persons(self) -> int:
+        return len(self.get_bboxes_inds("person"))
+
     def get_bboxes_inds(self, category: str) -> List[int]:
         bboxes: List[int] = []
         for ind, det in enumerate(self.yolo_results.boxes):
