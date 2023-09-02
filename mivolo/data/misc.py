@@ -198,6 +198,9 @@ def prepare_classification_images(
 
         prepared_images.append(img)
 
+    if len(prepared_images) == 0:
+        return None
+
     prepared_input = torch.concat(prepared_images)
 
     if device:
