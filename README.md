@@ -27,7 +27,7 @@ Gender & Age recognition performance.
   <tr>
     <th align="left">Model</th>
     <th align="left" style="color:LightBlue">Type</th>
-    <th align="left">Dataset</th>
+    <th align="left">Dataset (train and test)</th>
     <th align="left">Age MAE</th>
     <th align="left">Age CS@5</th>
     <th align="left">Gender Accuracy</th>
@@ -58,7 +58,7 @@ Gender & Age recognition performance.
     <td align="left">4.24 [face+body]<br>6.87 [body]</td>
     <td align="left">68.32 [face+body]<br>46.32 [body]</td>
     <td align="left">99.46 [face+body]<br>96.48 [body]</td>
-    <td><a href="https://drive.google.com/file/d/11i8pKctxz3wVkDBlWKvhYIh7kpVFXSZ4/view?usp=drive_link">checkpoint</a></td>
+    <td><a href="https://drive.google.com/file/d/11i8pKctxz3wVkDBlWKvhYIh7kpVFXSZ4/view?usp=drive_link">model_imdb_cross_person_4.24_99.46.pth.tar</a></td>
   </tr>
   <tr>
     <td>volo_d1</td>
@@ -87,10 +87,82 @@ Gender & Age recognition performance.
     <td align="left">97.36 [face+body]</td>
     <td><a href="https://huggingface.co/spaces/iitolstykh/demo">demo</a></td>
   </tr>
-<tr>
 
 </table>
 
+## MiVOLO regression benchmarks
+
+Gender & Age recognition performance.
+
+Use [valid_age_gender.sh](scripts/valid_age_gender.sh) to reproduce results with our checkpoints.
+
+<table style="margin: auto">
+  <tr>
+    <th align="left">Model</th>
+    <th align="left" style="color:LightBlue">Type</th>
+    <th align="left">Train Dataset</th>
+    <th align="left">Test Dataset</th>
+    <th align="left">Age MAE</th>
+    <th align="left">Age CS@5</th>
+    <th align="left">Gender Accuracy</th>
+    <th align="left">download</th>
+  </tr>
+
+  <tr>
+    <td>mivolo_d1</td>
+    <td align="left">face_body, age, gender</td>
+    <td align="left">Lagenda</td>
+    <td align="left">AgeDB</td>
+    <td align="left">5.55 [face]</td>
+    <td align="left">55.08 [face]</td>
+    <td align="left">98.3 [face]</td>
+    <td><a href="https://huggingface.co/spaces/iitolstykh/demo">demo</a></td>
+  </tr>
+  <tr>
+    <td>mivolo_d1</td>
+    <td align="left">face_body, age, gender</td>
+    <td align="left">IMDB-cleaned</td>
+    <td align="left">AgeDB</td>
+    <td align="left">5.58 [face]</td>
+    <td align="left">55.54 [face]</td>
+    <td align="left">97.93 [face]</td>
+    <td><a href="https://drive.google.com/file/d/11i8pKctxz3wVkDBlWKvhYIh7kpVFXSZ4/view?usp=drive_link">model_imdb_cross_person_4.24_99.46.pth.tar</a></td>
+  </tr>
+
+</table>
+
+## MiVOLO classification benchmarks
+
+Gender & Age recognition performance.
+
+<table style="margin: auto">
+  <tr>
+    <th align="left">Model</th>
+    <th align="left" style="color:LightBlue">Type</th>
+    <th align="left">Train Dataset</th>
+    <th align="left">Test Dataset</th>
+    <th align="left">Age Accuracy</th>
+    <th align="left">Gender Accuracy</th>
+  </tr>
+
+  <tr>
+    <td>mivolo_d1</td>
+    <td align="left">face_body, age, gender</td>
+    <td align="left">Lagenda</td>
+    <td align="left">FairFace</td>
+    <td align="left">61.07 [face+body]</td>
+    <td align="left">95.73 [face+body]</td>
+  </tr>
+  <tr>
+    <td>mivolo_d1</td>
+    <td align="left">face_body, age, gender</td>
+    <td align="left">Lagenda</td>
+    <td align="left">Adience</td>
+    <td align="left">68.69 [face]</td>
+    <td align="left">96.51[face]</td>
+  </tr>
+
+</table>
 
 ## Dataset
 
@@ -197,6 +269,22 @@ Gender & Age recognition performance.
     | --- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | --- |
     | 199 | 1,356 | 1,181 | 3,300 | 2,330 | 1,353 | 796   | 321   | 118 |
 
+    </details>
+- AgeDB dataset: follow [these instructions](https://ibug.doc.ic.ac.uk/resources/agedb/) to get images and [download](https://drive.google.com/file/d/1Dp72BUlAsyUKeSoyE_DOsFRS1x6ZBJen/view) our annotations.
+    <details>
+      <summary>Click to expand!</summary>
+
+  **Ages**: 1 - 101
+
+  **Genders**: 9788 faces of `M`, 6700 faces of `F`
+
+  | images 0 | images 1 | images 2 | images 3 | images 4 | images 5 | images 6 | images 7 | images 8 | images 9 |
+  |----------|----------|----------|----------|----------|----------|----------|----------|----------|----------|
+  | 1701     | 1721     | 1615     | 1619     | 1626     | 1643     | 1634     | 1596     | 1676     | 1657     |
+
+    Data splits were taken from [here](https://github.com/paplhjak/Facial-Age-Estimation-Benchmark-Databases)
+
+    !! **All splits(all dataset) were used for models evaluation.**
     </details>
 
 ## Install

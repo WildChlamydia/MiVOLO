@@ -11,6 +11,8 @@ DATASET_CLASS_MAP = {
     "utk": AgeGenderDataset,
     "lagenda": AgeGenderDataset,
     "imdb": AgeGenderDataset,
+    "agedb": AgeGenderDataset,
+    "cacd": AgeGenderDataset,
     "adience": AdienceDataset,
     "fairface": FairFaceDataset,
 }

@@ -8,7 +8,7 @@ import pandas as pd
 import torch
 import tqdm
 from mivolo.data.data_reader import PictureInfo, get_all_files
-from mivolo.model.yolo_detector import Detector, PersonAndFaceResult
+from mivolo.modeling.yolo_detector import Detector, PersonAndFaceResult
 from preparation_utils import assign_persons, associate_persons, get_additional_bboxes, get_main_face, save_annotations
 
 
@@ -75,6 +75,29 @@ def read_data(images_dir, annotations_files) -> Tuple[List[PictureInfo], List[Pi
     return dataset_pictures_train, dataset_pictures_val
 
 
+def find_persons_on_image(image_info, main_bbox, detected_objects, other_faces_inds, device):
+    # find person_ind for each face (main + other_faces)
+    all_faces: List[torch.tensor] = [torch.tensor(main_bbox).to(device)] + [
+        detected_objects.get_bbox_by_ind(ind) for ind in other_faces_inds
+    ]
+    faces_persons_map, other_persons_inds = associate_persons(all_faces, detected_objects)
+
+    additional_faces: List[PictureInfo] = get_additional_bboxes(
+        detected_objects, other_faces_inds, image_info.image_path
+    )
+
+    # set person bboxes for all faces (main + additional_faces)
+    assign_persons([image_info] + additional_faces, faces_persons_map, detected_objects)
+    if faces_persons_map[0] is not None:
+        assert all(coord != -1 for coord in image_info.person_bbox)
+
+    additional_persons: List[PictureInfo] = get_additional_bboxes(
+        detected_objects, other_persons_inds, image_info.image_path, is_person=True
+    )
+
+    return additional_faces, additional_persons
+
+
 def main(faces_dir: str, annotations: List[str], data_dir: str, detector_cfg: dict = None):
     """
     Generate a .txt annotation file with columns:
@@ -110,6 +133,8 @@ def main(faces_dir: str, annotations: List[str], data_dir: str, detector_cfg: di
 
                 detected_objects: PersonAndFaceResult = detector.predict(cv_im)
                 main_bbox, other_faces_inds = get_main_face(detected_objects, coarse_bbox)
+                if len(other_faces_inds):
+                    images_with_other_faces += 1
 
                 if main_bbox is None:
                     # use a full image as face bbox
@@ -117,30 +142,14 @@ def main(faces_dir: str, annotations: List[str], data_dir: str, detector_cfg: di
                     main_bbox = coarse_bbox
                 image_info.bbox = main_bbox
 
-                # find person_ind for each face (main + other_faces)
-                all_faces: List[torch.tensor] = [torch.tensor(main_bbox).to(device)] + [
-                    detected_objects.get_bbox_by_ind(ind) for ind in other_faces_inds
-                ]
-                faces_persons_map, other_persons_inds = associate_persons(all_faces, detected_objects)
-
-                additional_faces: List[PictureInfo] = get_additional_bboxes(
-                    detected_objects, other_faces_inds, image_info.image_path
+                additional_faces, additional_persons = find_persons_on_image(
+                    image_info, main_bbox, detected_objects, other_faces_inds, device
                 )
-
-                # set person bboxes for all faces (main + additional_faces)
-                assign_persons([image_info] + additional_faces, faces_persons_map, detected_objects)
-                if len(other_faces_inds):
-                    images_with_other_faces += 1
-                if faces_persons_map[0] is not None:
-                    assert all(coord != -1 for coord in image_info.person_bbox)
 
                 # add all additional faces
                 other_faces.extend(additional_faces)
 
                 # add persons with empty faces
-                additional_persons: List[PictureInfo] = get_additional_bboxes(
-                    detected_objects, other_persons_inds, image_info.image_path, is_person=True
-                )
                 other_faces.extend(additional_persons)
 
             print(f"Faces not detected: {faces_not_found}/{len(images)}")
