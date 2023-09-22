@@ -58,7 +58,10 @@ class ReaderAgeGender(Reader):
         self.min_person_aftercut_ratio = min_person_aftercut_ratio
         self.crop_round_tol = crop_round_tol
 
-        self.split = split
+        splits = split.split(",")
+        self.splits = [split.strip() for split in splits if len(split.strip())]
+        assert len(self.splits), "Incorrect split arg"
+
         self.min_size = min_size
         self.seed = seed
         self.target_size = target_size
@@ -87,7 +90,7 @@ class ReaderAgeGender(Reader):
         self._associated_objects = {}
 
         csvs = get_all_files(csvs_path, [".csv"])
-        csvs = [c for c in csvs if self.split in os.path.basename(c)]
+        csvs = [c for c in csvs if any(split_name in os.path.basename(c) for split_name in self.splits)]
 
         # load annotations per image
         for csv in csvs:
@@ -312,7 +315,7 @@ def verify_images(
         if sample.has_face_bbox or sample.has_person_bbox:
             out_samples.append(sample)
         elif sample.has_gt(only_age):
-            msgs.append("Sample hs no face and no body. Passing..")
+            msgs.append("Sample has no face and no body. Passing..")
             skipped_crops += 1
 
     # sort that samples with undefined age and gender be the last

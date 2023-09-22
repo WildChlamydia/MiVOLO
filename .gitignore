@@ -73,6 +73,7 @@ Testing notebook.ipynb
 *.png
 *.avi
 *.mp4
+*.svg
 
 .mypy_cache/
 .vscode/

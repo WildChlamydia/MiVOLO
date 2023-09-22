@@ -24,10 +24,10 @@ def get_parser():
         default=None,
         type=str,
         required=True,
-        choices=["utk", "imdb", "lagenda", "fairface", "adience"],
+        choices=["utk", "imdb", "lagenda", "fairface", "adience", "agedb", "cacd"],
         help="dataset name",
     )
-    parser.add_argument("--split", default="validation", help="dataset split (default: validation)")
+    parser.add_argument("--split", default="validation", help="dataset splits separated by comma (default: validation)")
     parser.add_argument("--checkpoint", default="", type=str, required=True, help="path to mivolo checkpoint")
 
     parser.add_argument("--batch-size", default=64, type=int, help="batch size")
