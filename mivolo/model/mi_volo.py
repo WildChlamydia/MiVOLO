@@ -26,6 +26,7 @@ class Meta:
         self.only_age = False
 
         self.num_classes_gender = 2
+        self.input_size = 224
 
     def load_from_ckpt(self, ckpt_path: str, disable_faces: bool = False, use_persons: bool = True) -> "Meta":
 
@@ -55,7 +56,7 @@ class Meta:
                 "You can not disable faces and persons together. "
                 "Set --with-persons if you want to run with --disable-faces"
             )
-
+        self.input_size = state["state_dict"]["pos_embed"].shape[1] * 16
         return self
 
     def __str__(self):
@@ -91,7 +92,7 @@ class MiVOLO:
         if self.verbose:
             _logger.info(f"Model meta:\n{str(self.meta)}")
 
-        model_name = "mivolo_d1_224"
+        model_name = f"mivolo_d1_{self.meta.input_size}"
         self.model = create_model(
             model_name=model_name,
             num_classes=self.meta.num_classes,
@@ -108,6 +109,7 @@ class MiVOLO:
             verbose=verbose,
             use_test_size=True,
         )
+
         self.data_config["crop_pct"] = 1.0
         c, h, w = self.data_config["input_size"]
         assert h == w, "Incorrect data_config"

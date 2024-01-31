@@ -243,7 +243,9 @@ class MiVOLOModel(VOLO):
             pooling_scale,
         )
 
+        im_size = img_size[0] if isinstance(img_size, tuple) else img_size
         self.patch_embed = PatchEmbed(
+            img_size=im_size,
             stem_conv=True,
             stem_stride=2,
             patch_size=patch_size,
