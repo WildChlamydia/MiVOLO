@@ -16,7 +16,7 @@
 > Maksim Kuprashevich, Irina Tolstykh,
 > *2023 [arXiv 2307.04616](https://arxiv.org/abs/2307.04616)*
 
-[[`Paper`](https://arxiv.org/abs/2307.04616)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)]
+[[`Paper 2023`](https://arxiv.org/abs/2307.04616)] [[`Paper 2024`](https://arxiv.org/abs/2403.02302)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`Telegram Bot`](https://t.me/AnyAgeBot)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)]
 
 
 ## MiVOLO pretrained models
@@ -86,6 +86,15 @@ Gender & Age recognition performance.
     <td align="left">71.27 [face+body]</td>
     <td align="left">97.36 [face+body]</td>
     <td><a href="https://huggingface.co/spaces/iitolstykh/demo">demo</a></td>
+  </tr>
+  <tr>
+    <td>mivolov2_d1_384x384</td>
+    <td align="left">face_body, age, gender</td>
+    <td align="left">Lagenda</td>
+    <td align="left">3.65 [face+body]</td>
+    <td align="left">74.48 [face+body]</td>
+    <td align="left">97.99 [face+body]</td>
+    <td><a href="https://t.me/AnyAgeBot">telegram bot</a></td>
   </tr>
 
 </table>
@@ -161,12 +170,20 @@ Gender & Age recognition performance.
     <td align="left">68.69 [face]</td>
     <td align="left">96.51[face]</td>
   </tr>
+  <tr>
+    <td>mivolov2_d1_384</td>
+    <td align="left">face_body, age, gender</td>
+    <td align="left">Lagenda</td>
+    <td align="left">Adience</td>
+    <td align="left">69.43 [face]</td>
+    <td align="left">97.39[face]</td>
+  </tr>
 
 </table>
 
 ## Dataset
 
-**Please, [cite our paper](#citing) if you use any this data!**
+**Please, [cite our papers](#citing) if you use any this data!**
 
 - Lagenda dataset: [images](https://drive.google.com/file/d/1QXO0NlkABPZT6x1_0Uc2i6KAtdcrpTbG/view?usp=sharing) and [annotation](https://drive.google.com/file/d/1mNYjYFb3MuKg-OL1UISoYsKObMUllbJx/view?usp=sharing).
 - IMDB-clean: follow [these instructions](https://github.com/yiminglin-ai/imdb-clean) to get images and [download](https://drive.google.com/file/d/17uEqyU3uQ5trWZ5vRJKzh41yeuDe5hyL/view?usp=sharing) our annotations.
@@ -384,5 +401,13 @@ If you use our models, code or dataset, we kindly request you to cite the follow
    Title = {MiVOLO: Multi-input Transformer for Age and Gender Estimation},
    Year = {2023},
    Eprint = {arXiv:2307.04616},
+}
+```
+```bibtex
+@article{mivolo2024,
+   Author = {Maksim Kuprashevich and Grigorii Alekseenko and Irina Tolstykh},
+   Title = {Beyond Specialization: Assessing the Capabilities of MLLMs in Age and Gender Estimation},
+   Year = {2024},
+   Eprint = {arXiv:2403.02302},
 }
 ```
