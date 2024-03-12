@@ -5,8 +5,8 @@ import numpy as np
 import PIL
 import torch
 from mivolo.structures import PersonAndFaceResult
-from ultralytics.yolo.engine.model import YOLO
-from ultralytics.yolo.engine.results import Results
+from ultralytics import YOLO
+from ultralytics.engine.results import Results
 
 # because of ultralytics bug it is important to unset CUBLAS_WORKSPACE_CONFIG after the module importing
 os.unsetenv("CUBLAS_WORKSPACE_CONFIG")

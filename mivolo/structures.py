@@ -7,8 +7,8 @@ import cv2
 import numpy as np
 import torch
 from mivolo.data.misc import aggregate_votes_winsorized, assign_faces, box_iou
-from ultralytics.yolo.engine.results import Results
-from ultralytics.yolo.utils.plotting import Annotator, colors
+from ultralytics.engine.results import Results
+from ultralytics.utils.plotting import Annotator, colors
 
 # because of ultralytics bug it is important to unset CUBLAS_WORKSPACE_CONFIG after the module importing
 os.unsetenv("CUBLAS_WORKSPACE_CONFIG")
