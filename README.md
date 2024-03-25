@@ -16,6 +16,10 @@
 > Maksim Kuprashevich, Irina Tolstykh,
 > *2023 [arXiv 2307.04616](https://arxiv.org/abs/2307.04616)*
 
+> [**Beyond Specialization: Assessing the Capabilities of MLLMs in Age and Gender Estimation**](https://arxiv.org/abs/2403.02302),
+> Maksim Kuprashevich, Grigorii Alekseenko, Irina Tolstykh
+> *2024 [arXiv 2403.02302](https://arxiv.org/abs/2403.02302)*
+
 [[`Paper 2023`](https://arxiv.org/abs/2307.04616)] [[`Paper 2024`](https://arxiv.org/abs/2403.02302)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`Telegram Bot`](https://t.me/AnyAgeBot)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)]
 
 
