@@ -13,11 +13,15 @@ import timm
 from mivolo.model.mivolo_model import *  # noqa: F403, F401
 from timm.layers import set_layer_config
 from timm.models._factory import parse_model_name
-from timm.models._helpers import load_state_dict, remap_checkpoint
+from timm.models._helpers import load_state_dict, remap_state_dict
 from timm.models._hub import load_model_config_from_hf
-from timm.models._pretrained import PretrainedCfg, split_model_name_tag
+from timm.models._pretrained import PretrainedCfg
 from timm.models._registry import is_model, model_entrypoint
 
+def split_model_name_tag(model_name: str, no_tag=''):
+    model_name, *tag_list = model_name.split('.', 1)
+    tag = tag_list[0] if tag_list else no_tag
+    return model_name, tag
 
 def load_checkpoint(
     model, checkpoint_path, use_ema=True, strict=True, remap=False, filter_keys=None, state_dict_map=None
@@ -31,7 +35,7 @@ def load_checkpoint(
         return
     state_dict = load_state_dict(checkpoint_path, use_ema)
     if remap:
-        state_dict = remap_checkpoint(model, state_dict)
+        state_dict = remap_state_dict(state_dict, model)
     if filter_keys:
         for sd_key in list(state_dict.keys()):
             for filter_key in filter_keys:
