@@ -18,7 +18,7 @@
 > Maksim Kuprashevich, Grigorii Alekseenko, Irina Tolstykh
 > *2024 [arXiv 2403.02302](https://arxiv.org/abs/2403.02302)*
 
-[[`Paper 2023`](https://arxiv.org/abs/2307.04616)] [[`Paper 2024`](https://arxiv.org/abs/2403.02302)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`🤗 HuggingFace`](https://huggingface.co/iitolstykh/mivolo_v2)] [[`Telegram Bot`](https://t.me/AnyAgeBot)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)]
+[[`Paper 2023`](https://arxiv.org/abs/2307.04616)] [[`Paper 2024`](https://arxiv.org/abs/2403.02302)] [[`Demo`](https://huggingface.co/spaces/iitolstykh/age_gender_estimation_demo)] [[`🤗 HuggingFace`](https://huggingface.co/iitolstykh/mivolo_v2)] [[`🤗 HuggingFace Detector`](https://huggingface.co/iitolstykh/YOLO-Face-Person-Detector)] [[`Telegram Bot`](https://t.me/AnyAgeBot)] [[`BibTex`](#citing)] [[`Data`](https://wildchlamydia.github.io/lagenda/)]
 
 <a href="https://huggingface.co/iitolstykh/mivolo_v2" target="_blank" rel="noopener noreferrer">
   <img src="./images/banner.jpg" width="900" alt="Banner">
